@@ -64,12 +64,7 @@ func (p *loaded) connect() (*kubernetes.Kubernetes, error) {
 }
 
 // load runs all processing stages described at the Processed type
-func load(path string, opts Opts) (*loaded, error) {
-	_, env, err := eval(path, opts.JsonnetOpts)
-	if err != nil {
-		return nil, err
-	}
-
+func load(env *v1alpha1.Config, opts Opts) (*loaded, error) {
 	if env == nil {
 		return nil, fmt.Errorf("no Tanka environment found")
 	}

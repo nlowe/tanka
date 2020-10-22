@@ -16,8 +16,13 @@ type Info struct {
 }
 
 // Status returns information about the particular environment
-func Status(baseDir string, opts Opts) (*Info, error) {
-	r, err := load(baseDir, opts)
+func Status(path string, opts Opts) (*Info, error) {
+	_, env, err := eval(path, opts.JsonnetOpts)
+	if err != nil {
+		return nil, err
+	}
+
+	r, err := load(env, opts)
 	if err != nil {
 		return nil, err
 	}
