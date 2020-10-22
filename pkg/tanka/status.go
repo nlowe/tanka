@@ -16,26 +16,32 @@ type Info struct {
 }
 
 // Status returns information about the particular environment
-func Status(path string, opts Opts) (*Info, error) {
-	_, env, err := eval(path, opts.JsonnetOpts)
+func Status(path string, opts Opts) ([]*Info, error) {
+	_, envs, err := eval(path, opts.JsonnetOpts)
 	if err != nil {
 		return nil, err
 	}
 
-	r, err := load(env, opts)
-	if err != nil {
-		return nil, err
-	}
-	kube, err := r.connect()
-	if err != nil {
-		return nil, err
-	}
+	infos := make([]*Info, 0)
+	for _, env := range envs {
+		r, err := load(env, opts)
+		if err != nil {
+			return nil, err
+		}
+		kube, err := r.connect()
+		if err != nil {
+			return nil, err
+		}
 
-	r.Env.Spec.DiffStrategy = kube.Env.Spec.DiffStrategy
+		r.Env.Spec.DiffStrategy = kube.Env.Spec.DiffStrategy
 
-	return &Info{
-		Env:       r.Env,
-		Resources: r.Resources,
-		Client:    kube.Info(),
-	}, nil
+		info := &Info{
+			Env:       r.Env,
+			Resources: r.Resources,
+			Client:    kube.Info(),
+		}
+
+		infos = append(infos, info)
+	}
+	return infos, nil
 }

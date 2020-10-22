@@ -30,7 +30,11 @@ func evalCmd() *cli.Command {
 		jsonnetOpts.EvalPattern = *evalPattern
 		raw, err := tanka.Eval(args[0], jsonnetOpts)
 
-		if err != nil {
+		return_err := err
+		if err != nil && raw != nil {
+			// only warn if raw data exists
+			log.Printf("warning: %s\n", return_err)
+		} else if err != nil {
 			return err
 		}
 
